@@ -30,9 +30,9 @@ __consumer_offsets 12 0
 __consumer_offsets 36 0
 __consumer_offsets 45 0
 __consumer_offsets 16 0
-__consumer_offsets 10 8
+__consumer_offsets 10 19
 __consumer_offsets 11 0
-tracking_events 1 2
+tracking_events 1 4
 __consumer_offsets 20 0
 __consumer_offsets 47 0
 __consumer_offsets 18 0

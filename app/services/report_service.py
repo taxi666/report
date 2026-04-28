@@ -19,7 +19,7 @@ class ReportService:
     async def publish_report(self, request: Request, payload: TrackPayload) -> None:
         client_ip = request.client.host if request.client else None
         event = ReportKafkaEvent(
-            user_id=payload.user_id,
+            user_id=payload.partition_key(fallback=client_ip or "anonymous"),
             request_path=request.url.path,
             client_ip=client_ip,
             user_agent=request.headers.get("user-agent"),

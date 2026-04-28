@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$bundledPython = "C:\Users\祝\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+$bundledPython = Join-Path $env:USERPROFILE ".cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 $venvPython = Join-Path $projectRoot ".venv\Scripts\python.exe"
 
 if (Test-Path $bundledPython) {

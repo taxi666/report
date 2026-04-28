@@ -36,26 +36,24 @@ class TrackPayload(BaseModel):
 
             normalized[key] = str(raw_value)
 
-        user_id = normalized.get("user_id")
-        if user_id is None:
-            raise ValueError("query parameter 'user_id' is required")
-
-        if isinstance(user_id, list):
-            user_id = next((item.strip() for item in user_id if item.strip()), "")
-        else:
-            user_id = user_id.strip()
-
-        if not user_id:
-            raise ValueError("query parameter 'user_id' cannot be empty")
-
         return normalized
 
-    @property
-    def user_id(self) -> str:
-        raw_user_id = self.params["user_id"]
-        if isinstance(raw_user_id, list):
-            return next(item for item in raw_user_id if item.strip()).strip()
-        return raw_user_id.strip()
+    def partition_key(self, fallback: str = "anonymous") -> str:
+        for key in ("user_id", "uid", "device_id", "sid", "trace_id"):
+            value = self.params.get(key)
+            normalized = self._first_non_empty(value)
+            if normalized:
+                return normalized
+        return fallback
+
+    @staticmethod
+    def _first_non_empty(value: str | list[str] | None) -> str | None:
+        if value is None:
+            return None
+        if isinstance(value, list):
+            return next((item.strip() for item in value if item.strip()), None)
+        value = value.strip()
+        return value or None
 
 
 class ReportKafkaEvent(BaseModel):
