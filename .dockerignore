@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+*.py[cod]
+*.log
+*.pid
+.env
+.tmp
+downloads
+tools
+kafka-data
+dist
+build
+.pytest_cache
+.mypy_cache
+.ruff_cache
