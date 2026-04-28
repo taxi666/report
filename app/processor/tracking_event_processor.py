@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import json
-from datetime import UTC, datetime
-from typing import Any
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -12,9 +14,9 @@ class RawTrackingEvent(BaseModel):
     user_id: str
     received_at: datetime
     request_path: str
-    client_ip: str | None = None
-    user_agent: str | None = None
-    params: dict[str, Any] = Field(default_factory=dict)
+    client_ip: Optional[str] = None
+    user_agent: Optional[str] = None
+    params: Dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("event_id", "user_id", "request_path")
     @classmethod
@@ -28,8 +30,8 @@ class RawTrackingEvent(BaseModel):
     @classmethod
     def normalize_received_at(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=UTC)
-        return value.astimezone(UTC)
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
 
 
 class ProcessedTrackingEvent(BaseModel):
@@ -37,19 +39,19 @@ class ProcessedTrackingEvent(BaseModel):
     user_id: str
     received_at: datetime
     request_path: str
-    client_ip: str | None = None
-    user_agent: str | None = None
+    client_ip: Optional[str] = None
+    user_agent: Optional[str] = None
     params_json: str
     kafka_topic: str
     kafka_partition: int
     kafka_offset: int
-    ingested_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    ingested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class TrackingEventProcessor:
     def process(
         self,
-        payload: dict[str, Any],
+        payload: Dict[str, Any],
         *,
         kafka_topic: str,
         kafka_partition: int,

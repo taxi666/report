@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import asyncio
 import json
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -152,6 +154,6 @@ class ClickHouseWriter:
     @staticmethod
     def _format_clickhouse_datetime(value: datetime) -> str:
         if value.tzinfo is None:
-            value = value.replace(tzinfo=UTC)
-        value = value.astimezone(UTC)
+            value = value.replace(tzinfo=timezone.utc)
+        value = value.astimezone(timezone.utc)
         return value.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]

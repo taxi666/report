@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
+from typing import Dict, List, Literal, Optional, Union
 from uuid import uuid4
-from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+ParamValue = Union[str, List[str]]
 
 
 class TrackPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    params: dict[str, str | list[str]] = Field(
+    params: Dict[str, ParamValue] = Field(
         ...,
         description="Arbitrary query parameters collected from /report.",
     )
@@ -17,12 +21,12 @@ class TrackPayload(BaseModel):
     @classmethod
     def validate_params(
         cls,
-        value: dict[str, str | list[str]],
-    ) -> dict[str, str | list[str]]:
+        value: Dict[str, ParamValue],
+    ) -> Dict[str, ParamValue]:
         if not value:
             raise ValueError("at least one query parameter is required")
 
-        normalized: dict[str, str | list[str]] = {}
+        normalized: Dict[str, ParamValue] = {}
         for raw_key, raw_value in value.items():
             key = raw_key.strip()
             if not key:
@@ -47,7 +51,7 @@ class TrackPayload(BaseModel):
         return fallback
 
     @staticmethod
-    def _first_non_empty(value: str | list[str] | None) -> str | None:
+    def _first_non_empty(value: Optional[ParamValue]) -> Optional[str]:
         if value is None:
             return None
         if isinstance(value, list):
@@ -63,9 +67,9 @@ class ReportKafkaEvent(BaseModel):
     user_id: str
     received_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     request_path: str
-    client_ip: str | None = None
-    user_agent: str | None = None
-    params: dict[str, str | list[str]]
+    client_ip: Optional[str] = None
+    user_agent: Optional[str] = None
+    params: Dict[str, ParamValue]
 
 
 class TrackResponse(BaseModel):
