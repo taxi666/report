@@ -1,10 +1,17 @@
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$pythonExe = Join-Path $projectRoot ".venv\Scripts\python.exe"
+$bundledPython = "C:\Users\祝\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+$venvPython = Join-Path $projectRoot ".venv\Scripts\python.exe"
 
-if (-not (Test-Path $pythonExe)) {
-    throw "Python runtime not found: $pythonExe"
+if (Test-Path $bundledPython) {
+    $pythonExe = $bundledPython
+}
+elseif (Test-Path $venvPython) {
+    $pythonExe = $venvPython
+}
+else {
+    throw "Python runtime not found."
 }
 
 Push-Location $projectRoot

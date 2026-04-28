@@ -5,26 +5,29 @@ from fastapi import FastAPI
 from app.api.routes.report import router as report_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
-from app.services.queue_service import EventQueueService
+from app.producer import KafkaProducerClient
 from app.services.report_service import ReportService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    queue_service = EventQueueService(maxsize=settings.queue_maxsize)
-    report_service = ReportService(queue_service=queue_service)
+    producer = KafkaProducerClient(
+        bootstrap_servers=settings.kafka_bootstrap_servers,
+        topic=settings.kafka_tracking_topic,
+        client_id=settings.kafka_client_id,
+    )
+    report_service = ReportService(producer=producer)
 
-    app.state.queue_service = queue_service
+    app.state.kafka_producer = producer
     app.state.report_service = report_service
 
-    if settings.queue_worker_enabled:
-        await queue_service.start()
+    await producer.start()
 
     try:
         yield
     finally:
-        await queue_service.stop()
+        await producer.stop()
 
 
 def create_app() -> FastAPI:

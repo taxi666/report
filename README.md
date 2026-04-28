@@ -33,3 +33,18 @@ Start the local broker after the workspace-local Java and Kafka binaries are dow
 .\scripts\create_tracking_topic.ps1
 .\.venv\Scripts\python.exe .\scripts\verify_kafka_delivery.py
 ```
+
+## Consumer To ClickHouse
+
+Start ClickHouse, then run the Kafka consumer:
+
+```powershell
+.\scripts\start_local_clickhouse.ps1
+.\run_consumer.ps1
+```
+
+End-to-end verification expects Kafka, ClickHouse, FastAPI, and the consumer to be running:
+
+```powershell
+python .\scripts\verify_e2e_clickhouse.py
+```
